@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="is">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sumar 2026 - Smasolusvid Olis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,500;0,9..40,700;1,9..40,300&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0c10;
+  --surface: #12151c;
+  --surface2: #1a1e28;
+  --border: #252a36;
+  --text: #e8eaf0;
+  --text-dim: #7a8299;
+  --accent: #4f8cff;
+  --accent-glow: rgba(79,140,255,0.15);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.15);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.15);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.15);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.15);
+  --done: #6b7280;
+  --done-dim: rgba(107,114,128,0.15);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  overflow: hidden;
+  height: 100vh;
+}
+
+header {
+  padding: 28px 48px 20px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  flex-shrink: 0;
+}
+
+header::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 48px;
+  width: 120px;
+  height: 2px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+
+.logo-area { display: flex; align-items: center; gap: 16px; }
+
+.logo-mark {
+  width: 40px; height: 40px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), #7c3aed);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Space Mono', monospace; font-weight: 700; font-size: 16px; color: #fff;
+  box-shadow: 0 4px 20px rgba(79,140,255,0.3);
+}
+
+h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }
+h1 span { color: var(--text-dim); font-weight: 300; font-size: 16px; margin-left: 12px; }
+
+.clock-area { text-align: right; }
+.clock { font-family: 'Space Mono', monospace; font-size: 28px; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+.date-text { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+
+.stats-bar {
+  display: flex; gap: 16px; padding: 16px 48px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 20px; flex: 1; display: flex; align-items: center; gap: 12px;
+}
+
+.stat-icon { width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.stat-icon.total { background: var(--accent-glow); }
+.stat-icon.progress { background: var(--green-dim); }
+.stat-icon.waiting { background: var(--amber-dim); }
+.stat-icon.overdue { background: var(--red-dim); }
+.stat-icon.done { background: var(--done-dim); }
+
+.stat-num { font-family: 'Space Mono', monospace; font-size: 22px; font-weight: 700; }
+.stat-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+
+.scroll-wrapper {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-container {
+  padding: 16px 48px 200px;
+  will-change: transform;
+}
+
+.timeline-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; background: var(--bg); z-index: 20;
+}
+
+.timeline-title { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-dim); }
+
+.legend { display: flex; gap: 16px; font-size: 11px; color: var(--text-dim); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 3px; }
+
+.refresh-badge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px; color: var(--text-dim); font-family: 'Space Mono', monospace;
+}
+.refresh-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 3s infinite; }
+
+.gantt-months {
+  display: flex; border-bottom: 1px solid var(--border);
+  margin-left: 260px;
+}
+
+.gantt-month {
+  flex: 1; min-width: 0; text-align: center; padding: 6px 0;
+  font-size: 12px; font-weight: 500; color: var(--text-dim);
+  border-right: 1px solid var(--border);
+}
+.gantt-month.current { color: var(--accent); font-weight: 700; }
+
+.gantt-row {
+  display: flex; align-items: center; height: 40px;
+  border-bottom: 1px solid rgba(37,42,54,0.5);
+  transition: background 0.2s;
+}
+.gantt-row:hover { background: var(--surface); }
+.gantt-row.completed-row { opacity: 0.5; }
+
+.task-label {
+  width: 260px; min-width: 260px; padding: 0 12px;
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; font-weight: 500; overflow: hidden;
+}
+
+.task-status-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.task-status-dot.in-progress { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.task-status-dot.not-started { background: var(--amber); }
+.task-status-dot.overdue { background: var(--red); box-shadow: 0 0 6px var(--red); animation: pulse 2s infinite; }
+.task-status-dot.completed { background: var(--done); }
+
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+.task-name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.task-name.done { text-decoration: line-through; color: var(--text-dim); }
+
+.task-due-tag {
+  font-size: 9px; padding: 1px 5px; border-radius: 3px;
+  font-family: 'Space Mono', monospace; font-weight: 700; flex-shrink: 0;
+}
+.tag-overdue { background: var(--red-dim); color: var(--red); }
+.tag-soon { background: var(--amber-dim); color: var(--amber); }
+.tag-ok { background: var(--accent-glow); color: var(--accent); }
+.tag-done { background: var(--done-dim); color: var(--done); }
+.tag-nodate { background: var(--surface2); color: var(--text-dim); }
+
+.task-timeline { flex: 1; position: relative; height: 100%; display: flex; align-items: center; }
+
+.task-bar {
+  position: absolute; height: 20px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: flex-end; padding-right: 6px;
+  font-size: 9px; font-family: 'Space Mono', monospace; font-weight: 700;
+  color: rgba(255,255,255,0.8); cursor: pointer; overflow: hidden;
+  transition: all 0.3s;
+}
+.task-bar:hover { height: 26px; filter: brightness(1.2); z-index: 5; }
+
+.task-bar.in-progress { background: linear-gradient(90deg, #059669, var(--green)); box-shadow: 0 2px 10px rgba(52,211,153,0.25); }
+.task-bar.not-started { background: linear-gradient(90deg, #b45309, var(--amber)); box-shadow: 0 2px 10px rgba(251,191,36,0.15); }
+.task-bar.overdue { background: linear-gradient(90deg, #dc2626, var(--red)); box-shadow: 0 2px 10px rgba(248,113,113,0.25); }
+.task-bar.completed { background: linear-gradient(90deg, #4b5563, var(--done)); opacity: 0.6; }
+.task-bar.no-dates { background: var(--surface2); border: 1px dashed var(--border); color: var(--text-dim); justify-content: center; }
+
+.today-line {
+  position: absolute; top: 0; bottom: 0; width: 2px;
+  background: var(--red); z-index: 8;
+  box-shadow: 0 0 8px rgba(248,113,113,0.5);
+}
+.today-line::before {
+  content: 'i dag'; position: absolute; top: -18px; left: 50%;
+  transform: translateX(-50%); font-size: 8px;
+  font-family: 'Space Mono', monospace; font-weight: 700;
+  color: var(--red); letter-spacing: 1px; white-space: nowrap; text-transform: uppercase;
+}
+
+.page-layout { display: flex; flex-direction: column; height: 100vh; }
+</style>
+</head>
+<body>
+<div class="page-layout">
+<header>
+  <div class="logo-area">
+    <div class="logo-mark">SO</div>
+    <div><h1>Sumar 2026 <span>Smasolusvid Olis</span></h1></div>
+  </div>
+  <div class="clock-area">
+    <div class="clock" id="clock">--:--</div>
+    <div class="date-text" id="dateText"></div>
+  </div>
+</header>
+
+<div class="stats-bar">
+  <div class="stat-card"><div class="stat-icon total">&#128203;</div><div><div class="stat-num" id="sTot">0</div><div class="stat-label">Samtals</div></div></div>
+  <div class="stat-card"><div class="stat-icon progress">&#9889;</div><div><div class="stat-num" id="sIP">0</div><div class="stat-label">I gangi</div></div></div>
+  <div class="stat-card"><div class="stat-icon waiting">&#9203;</div><div><div class="stat-num" id="sNS">0</div><div class="stat-label">Ekki byrjad</div></div></div>
+  <div class="stat-card"><div class="stat-icon overdue">&#128308;</div><div><div class="stat-num" id="sOD">0</div><div class="stat-label">Framyfir frest</div></div></div>
+  <div class="stat-card"><div class="stat-icon done">&#9989;</div><div><div class="stat-num" id="sDN">0</div><div class="stat-label">Lokid</div></div></div>
+</div>
+
+<div class="scroll-wrapper" id="scrollWrapper">
+  <div class="timeline-container" id="timelineContainer">
+    <div class="timeline-header">
+      <div class="timeline-title">Gantt timalina - radad eftir fresti</div>
+      <div style="display:flex;gap:20px;align-items:center">
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div> I gangi</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div> Ekki byrjad</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div> Framyfir</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--done)"></div> Lokid</div>
+        </div>
+        <div class="refresh-badge"><div class="refresh-dot"></div><span id="lastUpd">--:--</span></div>
+      </div>
+    </div>
+    <div id="gantt"></div>
+  </div>
+</div>
+</div>
+
+<script>
+var TASKS = [
+  {name:"Samfelagsskyrsla",start:"2026-04-13",due:"2026-05-08",bucket:"I gangi",progress:"in-progress"},
+  {name:"Fa myndir fra stodvastjorum",start:"2026-05-05",due:"2026-05-08",bucket:"I gangi",progress:"in-progress"},
+  {name:"Glans 1 ars.",start:"2026-04-15",due:"2026-05-15",bucket:"I gangi",progress:"in-progress"},
+  {name:"Olis med dyfu",start:"2026-04-28",due:"2026-05-20",bucket:"I gangi",progress:"in-progress"},
+  {name:"Barnabox",start:"2026-04-22",due:"2026-05-20",bucket:"I gangi",progress:"in-progress"},
+  {name:"Bolir f starfsmenn",start:"2026-04-28",due:"2026-05-22",bucket:"I gangi",progress:"in-progress"},
+  {name:"App vikur",start:null,due:"2026-05-27",bucket:"I gangi",progress:"in-progress"},
+  {name:"Nyr matsedill",start:"2026-03-02",due:"2026-05-27",bucket:"I gangi",progress:"in-progress"},
+  {name:"Sumarleikur",start:"2026-05-13",due:"2026-06-01",bucket:"I gangi",progress:"not-started"},
+  {name:"Vildarkerfi Lobyco",start:"2026-04-28",due:"2026-06-09",bucket:"I gangi",progress:"in-progress"},
+  {name:"Minar Sidur Beta",start:"2026-03-11",due:"2026-06-17",bucket:"I gangi",progress:"in-progress"},
+  {name:"ID skilti Skulagata og Saebraut",start:"2026-06-02",due:"2026-06-17",bucket:"Verkefnalisti",progress:"not-started"},
+  {name:"Is og florri og krap",start:"2026-04-22",due:"2026-06-18",bucket:"I gangi",progress:"in-progress"},
+  {name:"Fatahreinsunarskaper",start:"2026-04-22",due:"2026-08-26",bucket:"I gangi",progress:"in-progress"},
+  {name:"Gassjalfsalar",start:"2026-05-13",due:null,bucket:"Verkefnalisti",progress:"not-started"},
+  {name:"Fyrirtaekjasvid",start:null,due:null,bucket:"I gangi",progress:"not-started"},
+  {name:"TIKTOK umgjord",start:null,due:null,bucket:"Verkefnalisti",progress:"not-started"},
+  {name:"PR",start:null,due:null,bucket:"Verkefnalisti",progress:"not-started"},
+  {name:"OB location targeting",start:null,due:null,bucket:"Verkefnalisti",progress:"not-started"},
+  {name:"Latibaer midnaeturopnun",start:"2026-04-28",due:"2026-05-06",bucket:"I gangi",progress:"completed"}
+];
+
+var TS = new Date(2026,2,1);
+var TE = new Date(2026,8,30);
+var TD = (TE - TS) / 86400000;
+var TODAY = new Date();
+
+var MONTHS = [
+  {name:"Mars",s:new Date(2026,2,1),e:new Date(2026,2,31)},
+  {name:"April",s:new Date(2026,3,1),e:new Date(2026,3,30)},
+  {name:"Mai",s:new Date(2026,4,1),e:new Date(2026,4,31)},
+  {name:"Juni",s:new Date(2026,5,1),e:new Date(2026,5,30)},
+  {name:"Juli",s:new Date(2026,6,1),e:new Date(2026,6,31)},
+  {name:"Agust",s:new Date(2026,7,1),e:new Date(2026,7,31)},
+  {name:"Sept",s:new Date(2026,8,1),e:new Date(2026,8,30)}
+];
+
+function dO(d) { return (d - TS) / 86400000; }
+function pc(d) { return (d / TD) * 100; }
+
+function gS(t) {
+  if (t.progress === "completed") return "completed";
+  if (!t.due) return t.progress;
+  var d = new Date(t.due);
+  if (d < TODAY && t.progress !== "completed") return "overdue";
+  return t.progress;
+}
+
+function daysUntil(t) {
+  if (!t.due) return 9999;
+  return (new Date(t.due) - TODAY) / 86400000;
+}
+
+function dueFmt(t) {
+  if (!t.due) return null;
+  var d = new Date(t.due);
+  return d.getDate() + "/" + (d.getMonth() + 1);
+}
+
+function dueTag(t) {
+  var st = gS(t);
+  if (st === "completed") return '<span class="task-due-tag tag-done">Lokid</span>';
+  if (!t.due) return '<span class="task-due-tag tag-nodate">Engin dags.</span>';
+  var days = daysUntil(t);
+  if (days < 0) return '<span class="task-due-tag tag-overdue">' + dueFmt(t) + '</span>';
+  if (days < 14) return '<span class="task-due-tag tag-soon">' + dueFmt(t) + '</span>';
+  return '<span class="task-due-tag tag-ok">' + dueFmt(t) + '</span>';
+}
+
+function build() {
+  var g = document.getElementById("gantt");
+  g.innerHTML = "";
+
+  // Sort: overdue first, then by due date ascending, no-date last
+  var sorted = TASKS.slice().sort(function(a, b) {
+    var sa = gS(a), sb = gS(b);
+    // completed goes last
+    if (sa === "completed" && sb !== "completed") return 1;
+    if (sb === "completed" && sa !== "completed") return -1;
+    // overdue goes first
+    if (sa === "overdue" && sb !== "overdue") return -1;
+    if (sb === "overdue" && sa !== "overdue") return 1;
+    // sort by due date
+    var da = a.due ? new Date(a.due).getTime() : Infinity;
+    var db = b.due ? new Date(b.due).getTime() : Infinity;
+    return da - db;
+  });
+
+  // Month row
+  var mr = document.createElement("div");
+  mr.className = "gantt-months";
+  MONTHS.forEach(function(m) {
+    var d = document.createElement("div");
+    d.className = "gantt-month";
+    var n = new Date();
+    if (n.getMonth() === m.s.getMonth() && n.getFullYear() === m.s.getFullYear()) d.className += " current";
+    d.textContent = m.name;
+    var md = (m.e - m.s) / 86400000 + 1;
+    d.style.flex = md + " 0 0";
+    mr.appendChild(d);
+  });
+  g.appendChild(mr);
+
+  // Task rows
+  sorted.forEach(function(t) {
+    var st = gS(t);
+    var row = document.createElement("div");
+    row.className = "gantt-row" + (st === "completed" ? " completed-row" : "");
+
+    var lb = document.createElement("div");
+    lb.className = "task-label";
+    lb.innerHTML = '<div class="task-status-dot ' + st + '"></div>' +
+      '<div class="task-name' + (st === "completed" ? " done" : "") + '">' + t.name + '</div>' +
+      dueTag(t);
+    row.appendChild(lb);
+
+    var tl = document.createElement("div");
+    tl.className = "task-timeline";
+
+    if (t.start || t.due) {
+      var bar = document.createElement("div");
+      bar.className = "task-bar " + st;
+      var sd = t.start ? new Date(t.start) : (t.due ? new Date(new Date(t.due).getTime() - 14 * 86400000) : TS);
+      var ed = t.due ? new Date(t.due) : new Date(sd.getTime() + 21 * 86400000);
+      if (sd < TS) sd = TS;
+      if (ed > TE) ed = TE;
+      var lp = pc(dO(sd));
+      var wp = pc(dO(ed) - dO(sd));
+      bar.style.left = lp + "%";
+      bar.style.width = Math.max(wp, 1.5) + "%";
+      if (t.due) bar.textContent = dueFmt(t);
+      tl.appendChild(bar);
+    } else {
+      var bar = document.createElement("div");
+      bar.className = "task-bar no-dates";
+      bar.style.left = "5%";
+      bar.style.width = "10%";
+      bar.textContent = "Engin dags.";
+      tl.appendChild(bar);
+    }
+
+    // Today line
+    if (TODAY >= TS && TODAY <= TE) {
+      var tp = pc(dO(TODAY));
+      var line = document.createElement("div");
+      line.className = "today-line";
+      line.style.left = tp + "%";
+      tl.appendChild(line);
+    }
+
+    row.appendChild(tl);
+    g.appendChild(row);
+  });
+
+  // Stats
+  var total = TASKS.length;
+  var ip = 0, ns = 0, od = 0, dn = 0;
+  TASKS.forEach(function(t) {
+    var s = gS(t);
+    if (s === "in-progress") ip++;
+    else if (s === "not-started") ns++;
+    else if (s === "overdue") od++;
+    else if (s === "completed") dn++;
+  });
+  document.getElementById("sTot").textContent = total;
+  document.getElementById("sIP").textContent = ip;
+  document.getElementById("sNS").textContent = ns;
+  document.getElementById("sOD").textContent = od;
+  document.getElementById("sDN").textContent = dn;
+}
+
+function updateClock() {
+  var n = new Date();
+  var h = String(n.getHours()).padStart(2, "0");
+  var m = String(n.getMinutes()).padStart(2, "0");
+  var s = String(n.getSeconds()).padStart(2, "0");
+  document.getElementById("clock").textContent = h + ":" + m + ":" + s;
+  var ds = ["sun","man","trid","midv","fimm","fost","laug"];
+  var ms = ["januar","februar","mars","april","mai","juni","juli","agust","september","oktober","november","desember"];
+  document.getElementById("dateText").textContent = ds[n.getDay()] + ", " + n.getDate() + ". " + ms[n.getMonth()] + " " + n.getFullYear();
+  document.getElementById("lastUpd").textContent = h + ":" + m;
+}
+
+// Auto-scroll
+var scrollDir = 1;
+var scrollSpeed = 0.5;
+var scrollPause = 0;
+
+function autoScroll() {
+  var wrapper = document.getElementById("scrollWrapper");
+  var container = document.getElementById("timelineContainer");
+  var maxScroll = container.scrollHeight - wrapper.clientHeight;
+
+  if (maxScroll <= 0) {
+    requestAnimationFrame(autoScroll);
+    return;
+  }
+
+  if (scrollPause > 0) {
+    scrollPause--;
+    requestAnimationFrame(autoScroll);
+    return;
+  }
+
+  wrapper.scrollTop += scrollDir * scrollSpeed;
+
+  if (wrapper.scrollTop >= maxScroll) {
+    scrollDir = -1;
+    scrollPause = 180; // pause 3 seconds at bottom
+  } else if (wrapper.scrollTop <= 0) {
+    scrollDir = 1;
+    scrollPause = 180; // pause 3 seconds at top
+  }
+
+  requestAnimationFrame(autoScroll);
+}
+
+build();
+updateClock();
+setInterval(updateClock, 1000);
+requestAnimationFrame(autoScroll);
+</script>
+</body>
+</html>
